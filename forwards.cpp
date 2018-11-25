@@ -75,6 +75,8 @@ SH_DECL_MANUALHOOK0_void(CBaseClient_ActivatePlayer, 0, 0, 0);
 
 SH_DECL_MANUALHOOK1(CHLTVServer_GetChallengeType, 0, 0, 0, int, const netadr_t &);
 
+SH_DECL_MANUALHOOK1(CBaseClient_ExecuteStringCommand, 0, 0, 0, bool, const char *);
+
 void CForwardManager::Init()
 {
 	int offset = -1;
@@ -127,6 +129,17 @@ void CForwardManager::Init()
 	{
 		SH_MANUALHOOK_RECONFIGURE(CBaseClient_Disconnect, offset, 0, 0);
 		m_bHasDisconnectOffset = true;
+	}
+
+	if (!g_pGameConf->GetOffset("CBaseClient::ExecuteStringCommand", &offset) || offset == -1)
+	{
+		smutils->LogError(myself, "Failed to get CBaseClient::ExecuteStringCommand offset.");
+	}
+	else
+	{
+		// vtbloffs must be 0, not sure about thisoffs
+		SH_MANUALHOOK_RECONFIGURE(CBaseClient_ExecuteStringCommand, offset, 0, 0);
+		m_bHasExecuteStringCommandOffset = true;
 	}
 #endif
 
@@ -232,6 +245,12 @@ void CForwardManager::HookClient(IClient *client)
 #ifndef WIN32
 	if (m_bHasDisconnectOffset)
 		SH_ADD_MANUALHOOK(CBaseClient_Disconnect, pGameClient, SH_MEMBER(this, &CForwardManager::BaseClient_OnSpectatorDisconnect), false);
+	
+	if (m_bHasExecuteStringCommandOffset)
+	{
+		SH_ADD_MANUALHOOK(CBaseClient_ExecuteStringCommand, pGameClient, SH_MEMBER(this, &CForwardManager::BaseClient_OnSpectatorExecuteStringCommand), false);
+		SH_ADD_MANUALHOOK(CBaseClient_ExecuteStringCommand, pGameClient, SH_MEMBER(this, &CForwardManager::OnSpectatorExecuteStringCommand_Post), true);
+	}
 #endif
 }
 
@@ -248,6 +267,12 @@ void CForwardManager::UnhookClient(IClient *client)
 #ifndef WIN32
 	if (m_bHasDisconnectOffset)
 		SH_REMOVE_MANUALHOOK(CBaseClient_Disconnect, pGameClient, SH_MEMBER(this, &CForwardManager::BaseClient_OnSpectatorDisconnect), false);
+	
+	if (m_bHasExecuteStringCommandOffset)
+	{
+		SH_REMOVE_MANUALHOOK(CBaseClient_ExecuteStringCommand, pGameClient, SH_MEMBER(this, &CForwardManager::BaseClient_OnSpectatorExecuteStringCommand), false);
+		SH_REMOVE_MANUALHOOK(CBaseClient_ExecuteStringCommand, pGameClient, SH_MEMBER(this, &CForwardManager::OnSpectatorExecuteStringCommand_Post), true);
+	}
 #endif
 }
 
@@ -446,10 +471,27 @@ void CForwardManager::OnSpectatorPutInServer()
 
 bool CForwardManager::OnSpectatorExecuteStringCommand(const char *s)
 {
+	IClient *client = META_IFACEPTR(IClient);
+
+	RETURN_META_VALUE(MRES_IGNORED, HandleOnSpectatorExecuteStringCommand(client, s));
+}
+
+bool CForwardManager::BaseClient_OnSpectatorExecuteStringCommand(const char *s)
+{
+	void *pGameClient = META_IFACEPTR(void);
+	if (!pGameClient)
+		RETURN_META_VALUE(MRES_IGNORED, true);
+
+	IClient *client = (IClient *)((intptr_t)pGameClient + 4);
+
+	RETURN_META_VALUE(MRES_IGNORED, HandleOnSpectatorExecuteStringCommand(client, s));
+}
+
+bool CForwardManager::HandleOnSpectatorExecuteStringCommand(IClient *client, const char *s)
+{
 	if (!hltvserver)
 		RETURN_META_VALUE(MRES_IGNORED, true);
 
-	IClient *client = META_IFACEPTR(IClient);
 	if (!s || !s[0])
 		RETURN_META_VALUE(MRES_IGNORED, true);
 
@@ -487,7 +529,8 @@ bool CForwardManager::OnSpectatorExecuteStringCommand_Post(const char *s)
 DETOUR_DECL_MEMBER2(DetourHLTVServer_BroadcastLocalChat, void, const char *, chat, const char *, chatgroup)
 {
 	// IServer is +8 from CHLTVServer due to multiple inheritance
-	IServer *server = (IServer *)((intptr_t)this + 8);
+	// IServer is +4 in TF2
+	IServer *server = (IServer *)((intptr_t)this + 4);
 	HLTVServerWrapper *wrapper = g_HLTVServers.GetWrapper(server);
 
 	// Copy content in changeable buffer.

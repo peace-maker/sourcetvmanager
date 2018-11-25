@@ -258,6 +258,11 @@
 				"linux"	"2"
 			}
 			
+			"CBaseClient::ExecuteStringCommand"
+			{
+				"linux"	"22"
+			}
+			
 			"CBaseClient::Disconnect"
 			{
 				"linux"	"14"

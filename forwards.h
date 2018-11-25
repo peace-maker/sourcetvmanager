@@ -86,7 +86,10 @@ public:
 	void CallOnSpectatorChatMessage_Post(HLTVServerWrapper *server, const char *msg, const char *chatgroup);
 
 	bool OnSpectatorExecuteStringCommand(const char *s);
+	bool BaseClient_OnSpectatorExecuteStringCommand(const char *s);
+	bool HandleOnSpectatorExecuteStringCommand(IClient *client, const char *s);
 	bool OnSpectatorExecuteStringCommand_Post(const char *s);
+
 	void CreateBroadcastLocalChatDetour();
 	void RemoveBroadcastLocalChatDetour();
 
@@ -134,6 +137,7 @@ private:
 	bool m_bHasGetChallengeTypeOffset = false;
 	bool m_bHasActivatePlayerOffset = false;
 	bool m_bHasDisconnectOffset = false;
+	bool m_bHasExecuteStringCommandOffset = false;
 
 	bool m_bBroadcastLocalChatDetoured = false;
 	CDetour *m_DBroadcastLocalChat = nullptr;
