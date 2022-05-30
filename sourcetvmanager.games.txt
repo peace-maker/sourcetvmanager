@@ -22,7 +22,6 @@
 					"read" "49"
 				}
 			}
-			
 			"CHLTVServer::m_DemoRecorder"
 			{
 				"windows"
@@ -207,8 +206,8 @@
 		{
 			"CNetChan::SendNetMsg"
 			{
-				"windows"	"40"
-				"linux"	"41"
+				"windows" "37"
+				"linux"	"38"
 			}
 			
 			"CBaseClient::m_NetChannel"
@@ -224,26 +223,26 @@
 			
 			"CBaseServer::BroadcastPrintf"
 			{
-				"windows"	"35"
-				"linux"		"36"
+				"windows"	"37"
+				"linux"		"38"
 			}
 			
 			"CHLTVServer::ConnectClient"
+			{
+				"windows" "51"
+				"linux"	"52"
+			}
+			
+			"CHLTVServer::RejectConnection"
 			{
 				"windows"	"49"
 				"linux"	"50"
 			}
 			
-			"CHLTVServer::RejectConnection"
-			{
-				"windows"	"47"
-				"linux"	"48"
-			}
-			
 			"CHLTVServer::GetChallengeType"
 			{
-				"windows"	"54"
-				"linux"	"55"
+				"windows"	"56"
+				"linux"	"57"
 			}
 			
 			"CBaseClient::ActivatePlayer"
@@ -265,13 +264,13 @@
 			
 			"CBaseClient::ExecuteStringCommand"
 			{
-				"linux"	"22"
+				"linux" "22"
 			}
-			
+
 			"CHLTVServer::Shutdown"
 			{
-				"windows"	"41"
-				"linux"	"42"
+				"windows"	"43"
+				"linux"	"44"
 			}
 			
 			"CHLTVDirector::m_iPVSEntity"
@@ -291,15 +290,16 @@
 				"windows"	"40"
 				"linux"	"40"
 			}
+			
 			"CHLTVDemoRecorder_BaseOffset"
 			{
 				"windows"	"0"
 				"linux"	"4"
 			}
-
+			
 			"IServer_from_CHLTVServer"
 			{
-				"linux"	"4"
+				"linux" "4"
 			}
 		}
 		"Signatures"
