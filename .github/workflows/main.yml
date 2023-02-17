@@ -55,7 +55,7 @@ jobs:
             meta_version: "1.11"
             meta_branch: "1.11-dev"
             
-          - os: ubuntu-latest
+          - os: ubuntu-20.04
             os_short: linux
             
           - os: windows-latest
