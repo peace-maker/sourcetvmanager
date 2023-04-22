@@ -5,6 +5,8 @@ on:
     paths-ignore:
     - LICENSE
     - README.md
+    tags:
+      - '*'
   pull_request:
     paths-ignore:
     - LICENSE
@@ -25,30 +27,30 @@ jobs:
           - windows-latest
           
         sm_version:
-          - "1.8"
-          - "1.9"
-          - "1.10"
+          # - "1.8"
+          # - "1.9"
+          # - "1.10"
           - "1.11"
-          - "latest"
+          # - "latest"
           
         include:
-          # Use MM:Source 1.10 as base version
-          - meta_version: "1.10"
-            meta_branch: "1.10-dev"
+          # # Use MM:Source 1.10 as base version
+          # - meta_version: "1.10"
+          #   meta_branch: "1.10-dev"
             
-          - sm_version: latest
-            sm_branch: master
-            meta_version: latest
-            meta_branch: master
+          # - sm_version: latest
+          #   sm_branch: master
+          #   meta_version: latest
+          #   meta_branch: master
             
-          - sm_version: "1.8"
-            sm_branch: "1.8-dev"
+          # - sm_version: "1.8"
+          #   sm_branch: "1.8-dev"
             
-          - sm_version: "1.9"
-            sm_branch: "1.9-dev"
+          # - sm_version: "1.9"
+          #   sm_branch: "1.9-dev"
             
-          - sm_version: "1.10"
-            sm_branch: "1.10-dev"
+          # - sm_version: "1.10"
+          #   sm_branch: "1.10-dev"
             
           - sm_version: "1.11"
             sm_branch: "1.11-dev"
@@ -58,8 +60,8 @@ jobs:
           - os: ubuntu-20.04
             os_short: linux
             
-          - os: windows-latest
-            os_short: win
+          # - os: windows-latest
+          #   os_short: win
             
     steps:
       - name: Preparing to dump debug symbols
@@ -171,3 +173,35 @@ jobs:
         with:
           name: sourcetvmanager-sm${{ matrix.sm_version }}-${{ matrix.os_short }}-${{ env.GITHUB_SHA_SHORT }}
           path: sourcetvmanager/build/package
+
+  release:
+    name: Release
+    if: startsWith(github.ref, 'refs/tags/')
+    needs: build
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Download artifacts
+        uses: actions/download-artifact@v3
+
+      - name: Package
+        run: |
+          version=`echo $GITHUB_REF | sed "s/refs\/tags\///"`
+
+          ls -Rall
+
+          for folder in sourcetvmanager*
+          do
+            echo "Processing folder: $folder"
+            cd $folder
+            tar -czf ../${folder}.tar.gz -T <(\ls -1)
+            cd -
+          done
+
+      - name: Release
+        uses: svenstaro/upload-release-action@v2
+        with:
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          file: '*.tar.gz'
+          tag: ${{ github.ref }}
+          file_glob: true
