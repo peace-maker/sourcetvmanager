@@ -1,0 +1,3 @@
+[submodule "safetyhook"]
+	path = safetyhook
+	url = https://github.com/alliedmodders/safetyhook.git

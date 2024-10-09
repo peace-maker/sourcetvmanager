@@ -12,8 +12,6 @@ sourceFiles = [
   'hltvserverwrapper.cpp',
   'hltvdirectorwrapper.cpp',
   'hltvclientwrapper.cpp',
-  os.path.join(Extension.sm_root, 'public', 'CDetour', 'detours.cpp'),
-  os.path.join(Extension.sm_root, 'public', 'asm', 'asm.c'),
 ]
 
 # SM 1.10+ compilation changes
@@ -31,7 +29,7 @@ if os.path.isfile(os.path.join(Extension.sm_root, 'public', 'libudis86', 'decode
 # Make sure to edit PackageScript, which copies your files to their appropriate locations
 # Simple extensions do not need to modify past this point.
 
-project = Extension.HL2Project(builder, projectName + '.ext')
+project = builder.LibraryProject(projectName + '.ext')
 
 if os.path.isfile(os.path.join(builder.currentSourcePath, 'sdk', 'smsdk_ext.cpp')):
   # Use the copy included in the project
@@ -41,48 +39,52 @@ else:
   project.sources += [os.path.join(Extension.sm_root, 'public', 'smsdk_ext.cpp')]
 
 project.sources += sourceFiles
-
-project.compiler.defines += ['HAVE_STRING_H'];
   
 for sdk_name in ['css', 'tf2', 'dods', 'hl2dm', 'csgo', 'l4d', 'l4d2']:
   if sdk_name not in Extension.sdks:
     continue
   sdk = Extension.sdks[sdk_name]
-  
-  binary = Extension.HL2Config(project, projectName + '.ext.' + sdk.ext, sdk)
-  compiler = binary.compiler
-  
-  if sdk.name == 'csgo':
-    compiler.cxxincludes += [
-      os.path.join(sdk.path, 'common', 'protobuf-2.5.0', 'src'),
-      os.path.join(sdk.path, 'public', 'engine', 'protobuf'),
-      os.path.join(sdk.path, 'public', 'game', 'shared', 'csgo', 'protobuf')
-    ]
-    
-    if builder.target_platform == 'linux':
-      lib_path = os.path.join(sdk.path, 'lib', 'linux32', 'release', 'libprotobuf.a')
-    elif builder.target_platform == 'mac':
-      lib_path = os.path.join(sdk.path, 'lib', 'osx32', 'release', 'libprotobuf.a')
-    elif builder.target_platform == 'windows':
-      msvc_ver = compiler.version
-      vs_year = ''
-      if msvc_ver == 1800:
-        vs_year = '2013'
-      elif 1900 <= msvc_ver < 2000:
-        vs_year = '2015'
-      else:
-        raise Exception('Cannot find libprotobuf for MSVC version "' + str(compiler.version) + '"')
 
-      if 'DEBUG' in compiler.defines:
-        lib_path = os.path.join(sdk.path, 'lib', 'win32', 'debug', 'vs' + vs_year, 'libprotobuf.lib')
-      else:
-        lib_path = os.path.join(sdk.path, 'lib', 'win32', 'release', 'vs' + vs_year, 'libprotobuf.lib')
-    compiler.linkflags.insert(0, binary.Dep(lib_path))
+  for cxx in Extension.all_targets:
+    if not cxx.target.arch in sdk.platformSpec[cxx.target.platform]:
+      continue
+  
+    binary = Extension.HL2Config(project, cxx, projectName + '.ext.' + sdk.ext, sdk, builder)
+    Extension.AddCDetour(binary)
+    compiler = binary.compiler
+    compiler.defines += ['HAVE_STRING_H'];
     
-    binary.sources += [
-      os.path.join(sdk.path, 'public', 'engine', 'protobuf', 'netmessages.pb.cc'),
-      os.path.join(sdk.path, 'public', 'game', 'shared', 'csgo', 'protobuf', 'cstrike15_usermessages.pb.cc'),
-      os.path.join(sdk.path, 'public', 'game', 'shared', 'csgo', 'protobuf', 'cstrike15_usermessage_helpers.cpp'),
-    ]
+    if sdk.name == 'csgo':
+      compiler.cxxincludes += [
+        os.path.join(sdk.path, 'common', 'protobuf-2.5.0', 'src'),
+        os.path.join(sdk.path, 'public', 'engine', 'protobuf'),
+        os.path.join(sdk.path, 'public', 'game', 'shared', 'csgo', 'protobuf')
+      ]
+      
+      if compiler.target.platform == 'linux':
+        if compiler.target.arch == 'x86_64':
+          lib_path = os.path.join(sdk.path, 'lib', 'linux64', 'release', 'libprotobuf.a')
+        else:
+          lib_path = os.path.join(sdk.path, 'lib', 'linux32', 'release', 'libprotobuf.a')
+      elif compiler.target.platform == 'windows':
+        msvc_ver = compiler.version
+        vs_year = ''
+        if msvc_ver == 1800:
+          vs_year = '2013'
+        elif 1900 <= msvc_ver < 2000:
+          vs_year = '2015'
+        else:
+          raise Exception('Cannot find libprotobuf for MSVC version "' + str(compiler.version) + '"')
+
+        winFolder = 'win64' if compiler.target.arch == 'x86_64' else 'win32'
+        config = 'debug' if 'DEBUG' in compiler.defines else 'release'
+        lib_path = os.path.join(sdk.path, 'lib', winFolder, config, 'vs' + vs_year, 'libprotobuf.lib')
+      compiler.linkflags.insert(0, binary.Dep(lib_path))
+      
+      binary.sources += [
+        os.path.join(sdk.path, 'public', 'engine', 'protobuf', 'netmessages.pb.cc'),
+        os.path.join(sdk.path, 'public', 'game', 'shared', 'csgo', 'protobuf', 'cstrike15_usermessages.pb.cc'),
+        os.path.join(sdk.path, 'public', 'game', 'shared', 'csgo', 'protobuf', 'cstrike15_usermessage_helpers.cpp'),
+      ]
 
 Extension.extensions = builder.Add(project)
