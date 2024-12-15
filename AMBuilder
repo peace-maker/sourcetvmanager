@@ -79,7 +79,7 @@ for sdk_name in ['css', 'tf2', 'dods', 'hl2dm', 'csgo', 'l4d', 'l4d2']:
         winFolder = 'win64' if compiler.target.arch == 'x86_64' else 'win32'
         config = 'debug' if 'DEBUG' in compiler.defines else 'release'
         lib_path = os.path.join(sdk.path, 'lib', winFolder, config, 'vs' + vs_year, 'libprotobuf.lib')
-      compiler.linkflags.insert(0, binary.Dep(lib_path))
+      compiler.linkflags.insert(0, lib_path)
       
       binary.sources += [
         os.path.join(sdk.path, 'public', 'engine', 'protobuf', 'netmessages.pb.cc'),
