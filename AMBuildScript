@@ -23,10 +23,6 @@ class SDK(object):
 
 WinOnly = {'windows': ['x86']}
 WinLinux = {'windows': ['x86'], 'linux': ['x86']}
-CSGO = {
-  'windows': ['x86'],
-  'linux': ['x86', 'x86_64'],
-}
 WinLinux64 = {
   'windows': ['x86', 'x86_64'],
   'linux': ['x86', 'x86_64'],
@@ -47,7 +43,7 @@ PossibleSDKs = {
   'swarm':  SDK('HL2SDK-SWARM', '2.swarm', '16', 'ALIENSWARM', WinOnly, 'swarm'),
   'bgt':  SDK('HL2SDK-BGT', '2.bgt', '4', 'BLOODYGOODTIME', WinOnly, 'bgt'),
   'eye':  SDK('HL2SDK-EYE', '2.eye', '5', 'EYE', WinOnly, 'eye'),
-  'csgo': SDK('HL2SDKCSGO', '2.csgo', '20', 'CSGO', CSGO, 'csgo'),
+  'csgo': SDK('HL2SDKCSGO', '2.csgo', '20', 'CSGO', WinLinux, 'csgo'),
   'dota': SDK('HL2SDKDOTA', '2.dota', '21', 'DOTA', [], 'dota'),
   'portal2':  SDK('HL2SDKPORTAL2', '2.portal2', '17', 'PORTAL2', [], 'portal2'),
   'blade':  SDK('HL2SDKBLADE', '2.blade', '18', 'BLADE', WinLinux, 'blade'),
