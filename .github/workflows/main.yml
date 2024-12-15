@@ -118,10 +118,7 @@ jobs:
           repository: alliedmodders/metamod-source
           ref: ${{ matrix.meta_branch }}
           path: metamod-${{ matrix.meta_version }}
-          
-      - name: Getting Python
-        uses: actions/setup-python@v5
-        
+
       - name: Getting ambuild
         run: |
           python -m pip install wheel
