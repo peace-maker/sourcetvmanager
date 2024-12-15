@@ -158,13 +158,12 @@ jobs:
         working-directory: sourcetvmanager/build
         shell: bash
         run: |
-          for f in sourcetvmanager.ext.2.*; do
-            if [ -f "$f/$f.pdb" ]; then
-              dump_syms.exe $f/$f.pdb > $f.syms
-            else
-              dump_syms $f/$f.so > $f.syms
+          for f in $(find sourcetvmanager.ext.2.* -type f -print | grep \/sourcetvmanager\.ext\.2\.*\.); do
+            if ! [[ $f == *.so || $f == *.pdb ]]; then
+              continue
             fi
-            curl --data-binary @$f.syms https://crash.limetech.org/symbols/submit
+            dump_syms $f > $(basename $f).syms
+            curl --data-binary @$(basename $f).syms https://crash.limetech.org/symbols/submit
           done
           
       - name: Uploading package
