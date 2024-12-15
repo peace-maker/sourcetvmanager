@@ -456,6 +456,8 @@ class ExtensionConfig(object):
 
   def AddCDetour(self, binary):
     binary.sources += [ os.path.join(self.sm_root, 'public', 'CDetour', 'detours.cpp') ]
+    if os.path.exists(os.path.join(self.sm_root, 'public', 'asm', 'asm.c')):
+      binary.sources += [ os.path.join(self.sm_root, 'public', 'asm', 'asm.c') ]
     binary.compiler.cxxincludes += [ os.path.join(builder.sourcePath, 'safetyhook', 'include') ]
 
     for task in self.libsafetyhook:
@@ -473,15 +475,16 @@ Extension = ExtensionConfig()
 Extension.detectSDKs()
 Extension.configure()
 
-class SafetyHookShim(object):
-  def __init__(self):
-    self.all_targets = {}
-    self.libsafetyhook = {}
+if os.path.exists(os.path.join(builder.sourcePath, 'safetyhook', 'AMBuilder')):
+  class SafetyHookShim(object):
+    def __init__(self):
+      self.all_targets = {}
+      self.libsafetyhook = {}
 
-SafetyHook = SafetyHookShim()
-SafetyHook.all_targets = Extension.all_targets
-builder.Build('safetyhook/AMBuilder', {'SafetyHook': SafetyHook })
-Extension.libsafetyhook = SafetyHook.libsafetyhook
+  SafetyHook = SafetyHookShim()
+  SafetyHook.all_targets = Extension.all_targets
+  builder.Build('safetyhook/AMBuilder', {'SafetyHook': SafetyHook })
+  Extension.libsafetyhook = SafetyHook.libsafetyhook
 
 # Add additional buildscripts here
 BuildScripts = [
