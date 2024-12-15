@@ -3,15 +3,15 @@ name: build
 on:
   push:
     paths-ignore:
-    - LICENSE
-    - README.md
+      - LICENSE
+      - README.md
   pull_request:
     paths-ignore:
-    - LICENSE
-    - README.md
+      - LICENSE
+      - README.md
   workflow_dispatch:
   schedule:
-    - cron: '30 03 01 */3 *' # Artifacts expire every 3 months
+    - cron: "30 03 01 */3 *" # Artifacts expire every 3 months
 
 jobs:
   build:
@@ -23,46 +23,46 @@ jobs:
         os:
           - ubuntu-20.04
           - windows-latest
-          
+
         sm_version:
           - "1.9"
           - "1.10"
           - "1.11"
           - "1.12"
           - "latest"
-          
+
         include:
           # Use MM:Source 1.10 as base version
           - meta_version: "1.10"
             meta_branch: "1.10-dev"
-            
+
           - sm_version: latest
             sm_branch: master
             meta_version: latest
             meta_branch: master
-            
+
           - sm_version: "1.9"
             sm_branch: "1.9-dev"
-            
+
           - sm_version: "1.10"
             sm_branch: "1.10-dev"
-            
+
           - sm_version: "1.11"
             sm_branch: "1.11-dev"
             meta_version: "1.11"
             meta_branch: "1.11-dev"
-            
+
           - sm_version: "1.12"
             sm_branch: "1.12-dev"
             meta_version: "1.11"
             meta_branch: "1.11-dev"
-            
+
           - os: ubuntu-20.04
             os_short: linux
-            
+
           - os: windows-latest
             os_short: win
-            
+
     steps:
       - name: Preparing to dump debug symbols
         uses: actions/checkout@v4
@@ -76,7 +76,7 @@ jobs:
         shell: bash
         run: |
           echo "GITHUB_SHA_SHORT=${GITHUB_SHA::7}" >> $GITHUB_ENV
-          
+
       - name: Install (Linux)
         if: runner.os == 'Linux'
         run: |
@@ -89,7 +89,7 @@ jobs:
       - name: Add msbuild to PATH (Windows)
         if: runner.os == 'Windows'
         uses: microsoft/setup-msbuild@v2
-        
+
       - name: Install (Windows)
         if: runner.os == 'Windows'
         shell: cmd
@@ -98,12 +98,12 @@ jobs:
           for /f "usebackq delims=*" %%i in (`vswhere -latest -property installationPath`) do (
             call "%%i"\Common7\Tools\vsdevcmd.bat -arch=x86 -host_arch=x64
           )
-          
+
           :: Loop over all environment variables and make them global.
           for /f "delims== tokens=1,2" %%a in ('set') do (
             echo>>"%GITHUB_ENV%" %%a=%%b
           )
-          
+
       - name: Getting SourceMod ${{ matrix.sm_version }}
         uses: actions/checkout@v4
         with:
@@ -111,7 +111,7 @@ jobs:
           ref: ${{ matrix.sm_branch }}
           path: sourcemod-${{ matrix.sm_version }}
           submodules: recursive
-          
+
       - name: Getting MM:Source ${{ matrix.meta_version }}
         uses: actions/checkout@v4
         with:
@@ -126,7 +126,7 @@ jobs:
         run: |
           python -m pip install wheel
           pip install git+https://github.com/alliedmodders/ambuild
-        
+
       - name: Getting SDKs
         shell: bash
         run: |
@@ -136,13 +136,13 @@ jobs:
           do
             git clone hl2sdk-proxy-repo -b $sdk hl2sdk-$sdk
           done
-          
+
       - name: Getting own repository
         uses: actions/checkout@v4
         with:
           path: sourcetvmanager
           submodules: recursive
-          
+
       - name: Compiling SourceTV Manager files
         working-directory: sourcetvmanager
         run: |
@@ -150,7 +150,7 @@ jobs:
           cd build
           python ../configure.py --enable-optimize --sdks=present --sm-path="${{ github.workspace }}/sourcemod-${{ matrix.sm_version }}" --mms-path="${{ github.workspace }}/metamod-${{ matrix.meta_version }}"
           ambuild
-        
+
       - name: Uploading debug symbols
         working-directory: sourcetvmanager/build
         shell: bash
@@ -162,7 +162,7 @@ jobs:
             dump_syms $f > $(basename $f).syms
             curl --data-binary @$(basename $f).syms https://crash.limetech.org/symbols/submit
           done
-          
+
       - name: Uploading package
         uses: actions/upload-artifact@v4
         with:
