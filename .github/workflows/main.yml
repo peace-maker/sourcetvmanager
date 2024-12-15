@@ -25,10 +25,10 @@ jobs:
           - windows-latest
           
         sm_version:
-          - "1.8"
           - "1.9"
           - "1.10"
           - "1.11"
+          - "1.12"
           - "latest"
           
         include:
@@ -41,9 +41,6 @@ jobs:
             meta_version: latest
             meta_branch: master
             
-          - sm_version: "1.8"
-            sm_branch: "1.8-dev"
-            
           - sm_version: "1.9"
             sm_branch: "1.9-dev"
             
@@ -55,6 +52,11 @@ jobs:
             meta_version: "1.11"
             meta_branch: "1.11-dev"
             
+          - sm_version: "1.12"
+            sm_branch: "1.12-dev"
+            meta_version: "1.11"
+            meta_branch: "1.11-dev"
+            
           - os: ubuntu-20.04
             os_short: linux
             
@@ -63,17 +65,12 @@ jobs:
             
     steps:
       - name: Preparing to dump debug symbols
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           repository: mozilla/dump_syms
           path: dump_syms
-      - uses: actions-rs/toolchain@v1
-        with:
-          toolchain: stable
-      - uses: actions-rs/cargo@v1
-        with:
-          command: install
-          args: --all-features --path ./dump_syms
+      - name: Install dump_syms
+        run: cargo install --all-features --path ./dump_syms
 
       - name: Prepare env
         shell: bash
@@ -91,7 +88,7 @@ jobs:
 
       - name: Add msbuild to PATH (Windows)
         if: runner.os == 'Windows'
-        uses: microsoft/setup-msbuild@v1.1.3
+        uses: microsoft/setup-msbuild@v2
         
       - name: Install (Windows)
         if: runner.os == 'Windows'
@@ -108,7 +105,7 @@ jobs:
           )
           
       - name: Getting SourceMod ${{ matrix.sm_version }}
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           repository: alliedmodders/sourcemod
           ref: ${{ matrix.sm_branch }}
@@ -116,14 +113,14 @@ jobs:
           submodules: recursive
           
       - name: Getting MM:Source ${{ matrix.meta_version }}
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           repository: alliedmodders/metamod-source
           ref: ${{ matrix.meta_branch }}
           path: metamod-${{ matrix.meta_version }}
           
       - name: Getting Python
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5
         
       - name: Getting ambuild
         run: |
@@ -141,7 +138,7 @@ jobs:
           done
           
       - name: Getting own repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           path: sourcetvmanager
           submodules: recursive
@@ -167,7 +164,7 @@ jobs:
           done
           
       - name: Uploading package
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: sourcetvmanager-sm${{ matrix.sm_version }}-${{ matrix.os_short }}-${{ env.GITHUB_SHA_SHORT }}
           path: sourcetvmanager/build/package
