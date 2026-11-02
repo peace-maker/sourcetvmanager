@@ -152,7 +152,7 @@ static cell_t Native_GetServerPort(IPluginContext *pContext, const cell_t *param
 	if (hltvserver == nullptr)
 		return 0;
 
-#if SOURCE_ENGINE == SE_TF2 || SOURCE_ENGINE == SE_HL2DM
+#if SOURCE_ENGINE == SE_TF2 || SOURCE_ENGINE == SE_HL2DM || SOURCE_ENGINE == SE_CSS || SOURCE_ENGINE == SE_DODS
 	return hltvserver->GetBaseServer()->GetLocalUDPPort();
 #else
 	return hltvserver->GetBaseServer()->GetUDPPort();
