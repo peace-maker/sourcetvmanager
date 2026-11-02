@@ -206,6 +206,9 @@ class ExtensionConfig(object):
       '-Wno-switch',
       '-Wno-array-bounds',
       '-Wno-expansion-to-defined',
+      '-Wno-unknown-pragmas',
+      '-Wno-dangling-else',
+      '-Wno-overloaded-virtual',
       '-msse',
       '-fvisibility=hidden',
     ]
@@ -304,7 +307,7 @@ class ExtensionConfig(object):
     cxx.cflags += ['/Oy-']
 
   def configure_linux(self, cxx):
-    cxx.defines += ['_LINUX', 'POSIX']
+    cxx.defines += ['LINUX', '_LINUX', 'POSIX']
     cxx.linkflags += ['-Wl,--exclude-libs,ALL', '-lm']
     if cxx.family == 'gcc':
       cxx.linkflags += ['-static-libgcc']
@@ -364,7 +367,7 @@ class ExtensionConfig(object):
 
     compiler.defines += ['SOURCE_ENGINE=' + sdk.code]
 
-    if sdk.name in ['sdk2013', 'bms'] and compiler.like('gcc'):
+    if sdk.name in ['sdk2013', 'bms', 'css', 'tf2', 'dods', 'hl2dm'] and compiler.like('gcc'):
       # The 2013 SDK already has these in public/tier0/basetypes.h
       compiler.defines.remove('stricmp=strcasecmp')
       compiler.defines.remove('_stricmp=strcasecmp')
@@ -380,6 +383,9 @@ class ExtensionConfig(object):
       compiler.linkflags += ['legacy_stdio_definitions.lib']
     else:
       compiler.defines += ['COMPILER_GCC']
+
+    if compiler.target.arch == 'x86_64':
+      compiler.defines += ['X64BITS', 'PLATFORM_64BITS']
 
     # For everything after Swarm, this needs to be defined for entity networking
     # to work properly with sendprop value changes.
@@ -398,10 +404,13 @@ class ExtensionConfig(object):
       compiler.cxxincludes += [os.path.join(sdk.path, *path)]
 
     if compiler.target.platform == 'linux':
+      public_lib_folder = os.path.join(sdk.path, 'lib', 'public', 'linux64' if compiler.target.arch == 'x86_64' else 'linux')
       if sdk.name == 'episode1':
         lib_folder = os.path.join(sdk.path, 'linux_sdk')
       elif sdk.name in ['sdk2013', 'bms']:
         lib_folder = os.path.join(sdk.path, 'lib', 'public', 'linux32')
+      elif os.path.isdir(public_lib_folder):
+        lib_folder = public_lib_folder
       elif compiler.target.arch == 'x86_64':
         lib_folder = os.path.join(sdk.path, 'lib', 'linux64')
       else:
@@ -434,8 +443,11 @@ class ExtensionConfig(object):
       libs = ['tier0', 'tier1', 'vstdlib', 'mathlib']
       if sdk.name in ['swarm', 'blade', 'insurgency', 'csgo', 'dota']:
         libs.append('interfaces')
+      public_lib_folder = os.path.join(sdk.path, 'lib', 'public', 'x64' if compiler.target.arch == 'x86_64' else 'x86')
       for lib in libs:
-        if compiler.target.arch == 'x86':
+        if os.path.isdir(public_lib_folder):
+          lib_path = os.path.join(public_lib_folder, lib) + '.lib'
+        elif compiler.target.arch == 'x86':
           lib_path = os.path.join(sdk.path, 'lib', 'public', lib) + '.lib'
         elif compiler.target.arch == 'x86_64':
           lib_path = os.path.join(sdk.path, 'lib', 'public', 'win64', lib) + '.lib'
