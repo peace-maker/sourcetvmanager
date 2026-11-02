@@ -102,7 +102,7 @@ jobs:
         shell: bash
         run: |
           git clone --mirror https://github.com/alliedmodders/hl2sdk hl2sdk-proxy-repo
-          sdks=(tf2)
+          sdks=(csgo tf2 css hl2dm dods l4d2 l4d)
           for sdk in "${sdks[@]}"
           do
             git clone hl2sdk-proxy-repo -b $sdk hl2sdk-$sdk
