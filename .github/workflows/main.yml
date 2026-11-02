@@ -56,7 +56,7 @@ jobs:
 
     steps:
       - name: Preparing to dump debug symbols
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           repository: mozilla/dump_syms
           path: dump_syms
@@ -79,7 +79,7 @@ jobs:
           echo "CXX=clang++" >> $GITHUB_ENV
 
       - name: Getting SourceMod ${{ matrix.sm_version }}
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           repository: alliedmodders/sourcemod
           ref: ${{ matrix.sm_branch }}
@@ -87,7 +87,7 @@ jobs:
           submodules: recursive
 
       - name: Getting MM:Source ${{ matrix.meta_version }}
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           repository: alliedmodders/metamod-source
           ref: ${{ matrix.meta_branch }}
@@ -109,7 +109,7 @@ jobs:
           done
 
       - name: Getting own repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           path: sourcetvmanager
           submodules: recursive
@@ -135,7 +135,7 @@ jobs:
           done
 
       - name: Uploading package
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: sourcetvmanager-sm${{ matrix.sm_version }}-${{ matrix.os_short }}
           path: sourcetvmanager/build/package
