@@ -345,11 +345,6 @@ class ExtensionConfig(object):
       os.path.join(mms_path, 'sourcehook'),
     ]
 
-    # mm:s 2.0 headers include khook
-    khook_path = os.path.join(self.mms_root, 'third_party', 'khook', 'include')
-    if os.path.isdir(khook_path):
-      compiler.cxxincludes += [khook_path]
-
     defines = ['SE_' + PossibleSDKs[i].define + '=' + PossibleSDKs[i].code for i in PossibleSDKs]
     compiler.defines += defines
 

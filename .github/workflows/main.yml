@@ -42,11 +42,11 @@ jobs:
             meta_version: "1.12"
             meta_branch: "1.12-dev"
 
-          # sm 1.13 and mm 2.0 are master
+          # sm 1.13 is master, and builds against mm:s 1.12 like sm itself does
           - sm_version: "1.13"
             sm_branch: master
-            meta_version: "2.0"
-            meta_branch: master
+            meta_version: "1.12"
+            meta_branch: "1.12-dev"
 
           - os: ubuntu-22.04
             os_short: linux
@@ -92,7 +92,6 @@ jobs:
           repository: alliedmodders/metamod-source
           ref: ${{ matrix.meta_branch }}
           path: metamod-${{ matrix.meta_version }}
-          submodules: recursive
 
       - name: Getting ambuild
         run: |
