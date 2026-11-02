@@ -92,6 +92,13 @@ bool SourceTVManager::SDK_OnLoad(char *error, size_t maxlength, bool late)
 	{
 		smutils->LogError(myself, "Failed to find host_client pointer. Server might crash when executing commands on SourceTV bot.");
 	}
+#ifdef _WIN64
+	// The x64 engine reads host_client RIP-relative. The address points to the rel32 at the end of that instruction.
+	else
+	{
+		host_client = (char *)host_client + sizeof(int32_t) + *(int32_t *)host_client;
+	}
+#endif
 
 	g_HLTVServers.InitHooks();
 
