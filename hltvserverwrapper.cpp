@@ -484,6 +484,20 @@ IDemoRecorder *HLTVServerWrapperManager::GetDemoRecorderPtr(IHLTVServer *hltv)
 	}
 }
 
+int HLTVServerWrapperManager::GetIServerOffset()
+{
+	static int offset = -1;
+	if (offset == -1)
+	{
+		if (!g_pGameConf->GetOffset("IServer_from_CHLTVServer", &offset) || offset == -1)
+		{
+			// IServer is +8 from CHLTVServer due to multiple inheritance - except for TF2?
+			offset = 8;
+		}
+	}
+	return offset;
+}
+
 bool HLTVServerWrapperManager::HasShutdownOffset()
 {
 	return m_bHasShutdownOffset;

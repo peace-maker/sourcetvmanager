@@ -259,7 +259,7 @@ static bool BroadcastEventLocal(IHLTVServer *server, IGameEvent *event, bool bRe
 		unsigned char *vptr = vstk;
 		
 		IServer *iserver = server->GetBaseServer();
-		*(void **)vptr = (void *)((intptr_t)iserver - 8);
+		*(void **)vptr = (void *)((intptr_t)iserver - g_HLTVServers.GetIServerOffset());
 		vptr += sizeof(void *);
 		*(IGameEvent **)vptr = event;
 		vptr += sizeof(IGameEvent *);

@@ -507,17 +507,7 @@ bool CForwardManager::OnSpectatorExecuteStringCommand_Post(const char *s)
 
 DETOUR_DECL_MEMBER2(DetourHLTVServer_BroadcastLocalChat, void, const char *, chat, const char *, chatgroup)
 {
-	static int hltvserver_inherit_offset = -1;
-	if (hltvserver_inherit_offset == -1)
-	{
-		if (!g_pGameConf->GetOffset("IServer_from_CHLTVServer", &hltvserver_inherit_offset) || hltvserver_inherit_offset == -1)
-		{
-			// IServer is +8 from CHLTVServer due to multiple inheritance - except for TF2?
-			hltvserver_inherit_offset = 8;
-		}
-	}
-
-	IServer *server = (IServer *)((intptr_t)this + hltvserver_inherit_offset);
+	IServer *server = (IServer *)((intptr_t)this + g_HLTVServers.GetIServerOffset());
 	HLTVServerWrapper *wrapper = g_HLTVServers.GetWrapper(server);
 
 	// Copy content in changeable buffer.
