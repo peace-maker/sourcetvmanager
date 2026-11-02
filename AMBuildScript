@@ -31,9 +31,9 @@ WinLinux64 = {
 PossibleSDKs = {
   'episode1':  SDK('HL2SDK', '1.ep1', '1', 'EPISODEONE', WinLinux, 'episode1'),
   'ep2':  SDK('HL2SDKOB', '2.ep2', '3', 'ORANGEBOX', WinLinux, 'orangebox'),
-  'css':  SDK('HL2SDKCSS', '2.css', '6', 'CSS', WinLinux, 'css'),
-  'hl2dm':  SDK('HL2SDKHL2DM', '2.hl2dm', '7', 'HL2DM', WinLinux, 'hl2dm'),
-  'dods': SDK('HL2SDKDODS', '2.dods', '8', 'DODS', WinLinux, 'dods'),
+  'css':  SDK('HL2SDKCSS', '2.css', '6', 'CSS', WinLinux64, 'css'),
+  'hl2dm':  SDK('HL2SDKHL2DM', '2.hl2dm', '7', 'HL2DM', WinLinux64, 'hl2dm'),
+  'dods': SDK('HL2SDKDODS', '2.dods', '8', 'DODS', WinLinux64, 'dods'),
   'sdk2013': SDK('HL2SDK2013', '2.sdk2013', '9', 'SDK2013', WinLinux, 'sdk2013'),
   'tf2':  SDK('HL2SDKTF2', '2.tf2', '11', 'TF2', WinLinux64, 'tf2'),
   'l4d':  SDK('HL2SDKL4D', '2.l4d', '12', 'LEFT4DEAD', WinLinux, 'l4d'),
