@@ -455,7 +455,8 @@ IDemoRecorder *HLTVServerWrapperManager::GetDemoRecorderPtr(IHLTVServer *hltv)
 			return nullptr;
 		}
 
-		*(int **)&offset = (int *)addr;
+		// The "read" gives a pointer-sized value. The offset is its low 32 bits.
+		offset = (int)(intptr_t)addr;
 
 		// See if we have to subtract something from the offset.
 		int baseOffset = 0;
