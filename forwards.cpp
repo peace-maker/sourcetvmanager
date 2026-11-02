@@ -224,7 +224,7 @@ void CForwardManager::HookClient(IClient *client)
 	// Hook ExecuteStringCommand for chat messages
 	g_pSTVCommonHooks.AddSpectatorHook(this, client);
 
-	void *pGameClient = (void *)((intptr_t)client - 4);
+	void *pGameClient = (void *)((intptr_t)client - sizeof(void *));
 	if (m_bHasActivatePlayerOffset)
 		SH_ADD_MANUALHOOK(CBaseClient_ActivatePlayer, pGameClient, SH_MEMBER(this, &CForwardManager::OnSpectatorPutInServer), true);
 	
@@ -242,7 +242,7 @@ void CForwardManager::UnhookClient(IClient *client)
 	// Remove ExecuteStringCommand hook
 	g_pSTVCommonHooks.RemoveSpectatorHook(this, client);
 
-	void *pGameClient = (void *)((intptr_t)client - 4);
+	void *pGameClient = (void *)((intptr_t)client - sizeof(void *));
 	if (m_bHasActivatePlayerOffset)
 		SH_REMOVE_MANUALHOOK(CBaseClient_ActivatePlayer, pGameClient, SH_MEMBER(this, &CForwardManager::OnSpectatorPutInServer), true);
 	
@@ -389,7 +389,7 @@ void CForwardManager::BaseClient_OnSpectatorDisconnect(const char *reason)
 	if (!pGameClient)
 		RETURN_META(MRES_IGNORED);
 
-	IClient *client = (IClient *)((intptr_t)pGameClient + 4);
+	IClient *client = (IClient *)((intptr_t)pGameClient + sizeof(void *));
 	HandleSpectatorDisconnect(client, reason);
 
 	RETURN_META(MRES_SUPERCEDE);
@@ -437,8 +437,8 @@ void CForwardManager::OnSpectatorPutInServer()
 	if (!pGameClient)
 		RETURN_META(MRES_IGNORED);
 
-	// The IClient vtable is + 4 from the CBaseClient vtable due to multiple inheritance.
-	IClient *client = (IClient *)((intptr_t)pGameClient + 4);
+	// The IClient vtable is one pointer after the CBaseClient vtable due to multiple inheritance.
+	IClient *client = (IClient *)((intptr_t)pGameClient + sizeof(void *));
 
 	m_SpectatorPutInServerFwd->PushCell(client->GetPlayerSlot() + 1);
 	m_SpectatorPutInServerFwd->Execute();
@@ -452,7 +452,7 @@ bool CForwardManager::BaseClient_OnSpectatorExecuteStringCommand(const char *s)
 	if (!pGameClient)
 		RETURN_META_VALUE(MRES_IGNORED, true);
 
-	IClient *client = (IClient *)((intptr_t)pGameClient + 4);
+	IClient *client = (IClient *)((intptr_t)pGameClient + sizeof(void *));
 	HandleSpectatorExecuteStringCommand(client, s);
 	RETURN_META_VALUE(MRES_IGNORED, true);
 }

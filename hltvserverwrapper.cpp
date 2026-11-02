@@ -149,8 +149,8 @@ void HLTVServerWrapper::Hook()
 #if SOURCE_ENGINE != SE_CSGO
 			SH_ADD_HOOK(IClient, ClientPrintf, pClient, SH_MEMBER(this, &HLTVServerWrapper::OnIClient_ClientPrintf_Post), false);
 #ifndef WIN32
-			// The IClient vtable is +4 from the CBaseClient vtable due to multiple inheritance.
-			void *pGameClient = (void *)((intptr_t)pClient - 4);
+			// The IClient vtable is one pointer after the CBaseClient vtable due to multiple inheritance.
+			void *pGameClient = (void *)((intptr_t)pClient - sizeof(void *));
 			if (g_HLTVServers.HasClientPrintfOffset())
 				SH_ADD_MANUALHOOK(CGameClient_ClientPrintf, pGameClient, SH_MEMBER(this, &HLTVServerWrapper::OnCGameClient_ClientPrintf_Post), false);
 #endif // !WIN32
@@ -181,8 +181,8 @@ void HLTVServerWrapper::Unhook()
 #if SOURCE_ENGINE != SE_CSGO
 			SH_REMOVE_HOOK(IClient, ClientPrintf, pClient, SH_MEMBER(this, &HLTVServerWrapper::OnIClient_ClientPrintf_Post), false);
 #ifndef WIN32
-			// The IClient vtable is +4 from the CBaseClient vtable due to multiple inheritance.
-			void *pGameClient = (void *)((intptr_t)pClient - 4);
+			// The IClient vtable is one pointer after the CBaseClient vtable due to multiple inheritance.
+			void *pGameClient = (void *)((intptr_t)pClient - sizeof(void *));
 			if (g_HLTVServers.HasClientPrintfOffset())
 				SH_REMOVE_MANUALHOOK(CGameClient_ClientPrintf, pGameClient, SH_MEMBER(this, &HLTVServerWrapper::OnCGameClient_ClientPrintf_Post), false);
 #endif // !WIN32
@@ -227,8 +227,8 @@ bool HLTVServerWrapper::OnHLTVBotExecuteStringCommand(const char *s)
 	if (!pClient)
 		RETURN_META_VALUE(MRES_IGNORED, 0);
 
-	// The IClient vtable is +4 from the CBaseClient vtable due to multiple inheritance.
-	void *pGameClient = (void *)((intptr_t)pClient - 4);
+	// The IClient vtable is one pointer after the CBaseClient vtable due to multiple inheritance.
+	void *pGameClient = (void *)((intptr_t)pClient - sizeof(void *));
 
 	old_host_client = *(void **)host_client;
 	*(void **)host_client = pGameClient;
@@ -251,7 +251,7 @@ bool HLTVServerWrapper::OnHLTVBotExecuteStringCommand_Post(const char *s)
 void HLTVServerWrapper::OnCGameClient_ClientPrintf_Post(const char* buf)
 {
 	void *pGameClient = META_IFACEPTR(void);
-	IClient *pClient = (IClient *)((intptr_t)pGameClient + 4);
+	IClient *pClient = (IClient *)((intptr_t)pGameClient + sizeof(void *));
 	HandleClientPrintf(pClient, buf);
 
 	// We already called the function in HandleClientPrintf.
@@ -282,7 +282,7 @@ void HLTVServerWrapper::HandleClientPrintf(IClient *pClient, const char* buf)
 #ifdef WIN32
 	void *pNetChannel = (void *)((char *)pClient + offset);
 #else
-	void *pNetChannel = (void *)((char *)pClient + offset - 4);
+	void *pNetChannel = (void *)((char *)pClient + offset - sizeof(void *));
 #endif
 	// Set our fake netchannel
 	*(void **)pNetChannel = &FakeNetChan;

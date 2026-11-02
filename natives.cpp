@@ -869,8 +869,8 @@ static cell_t Native_PrintToChat(IPluginContext *pContext, const cell_t *params)
 	if (g_bHasClientFireGameEventOffset)
 	{
 		void *pGameClient = pClient->BaseClient();
-		// The IClient vtable is +4 from the CBaseClient vtable due to multiple inheritance.
-		pGameClient = (void *)((intptr_t)pGameClient - 4);
+		// The IClient vtable is one pointer after the CBaseClient vtable due to multiple inheritance.
+		pGameClient = (void *)((intptr_t)pGameClient - sizeof(void *));
 		SH_MCALL(pGameClient, CBaseClient_FireGameEvent)(msg);
 	}
 
@@ -974,8 +974,8 @@ static cell_t Native_SetClientTVTitle(IPluginContext *pContext, const cell_t *pa
 	if (g_bHasClientFireGameEventOffset)
 	{
 		void *pGameClient = pClient->BaseClient();
-		// The IClient vtable is +4 from the CBaseClient vtable due to multiple inheritance.
-		pGameClient = (void *)((intptr_t)pGameClient - 4);
+		// The IClient vtable is one pointer after the CBaseClient vtable due to multiple inheritance.
+		pGameClient = (void *)((intptr_t)pGameClient - sizeof(void *));
 		SH_MCALL(pGameClient, CBaseClient_FireGameEvent)(msg);
 	}
 
