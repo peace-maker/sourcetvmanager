@@ -42,10 +42,11 @@ jobs:
             meta_version: "1.12"
             meta_branch: "1.12-dev"
 
+          # sm 1.13 and mm 2.0 are master
           - sm_version: "1.13"
-            sm_branch: "1.13-dev"
-            meta_version: "1.13"
-            meta_branch: "1.13-dev"
+            sm_branch: master
+            meta_version: "2.0"
+            meta_branch: master
 
           - os: ubuntu-22.04
             os_short: linux
@@ -119,7 +120,7 @@ jobs:
         shell: bash
         run: |
           git clone --mirror https://github.com/alliedmodders/hl2sdk hl2sdk-proxy-repo
-          sdks=(csgo tf2 css hl2dm dods l4d2 l4d)
+          sdks=(tf2)
           for sdk in "${sdks[@]}"
           do
             git clone hl2sdk-proxy-repo -b $sdk hl2sdk-$sdk
