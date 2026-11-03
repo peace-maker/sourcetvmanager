@@ -40,7 +40,7 @@
 /* Basic information exposed publicly */
 #define SMEXT_CONF_NAME			"SourceTV Manager"
 #define SMEXT_CONF_DESCRIPTION	"Interface to interact with the SourceTV server."
-#define SMEXT_CONF_VERSION		"1.2"
+#define SMEXT_CONF_VERSION		"1.3-beta0"
 #define SMEXT_CONF_AUTHOR		"Peace-Maker"
 #define SMEXT_CONF_URL			"http://www.wcfan.de/"
 #define SMEXT_CONF_LOGTAG		"STVM"
