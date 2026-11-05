@@ -36,7 +36,12 @@ class IClient;
 class CForwardManager;
 class HLTVServerWrapper;
 
-#define NEED_EXECUTESTRINGCMD_CBASECLIENT !defined(WIN32) && SOURCE_ENGINE == SE_TF2
+// defined() in a macro body is UB
+#if !defined(WIN32) && SOURCE_ENGINE == SE_TF2
+#define NEED_EXECUTESTRINGCMD_CBASECLIENT 1
+#else
+#define NEED_EXECUTESTRINGCMD_CBASECLIENT 0
+#endif
 
 class CCommonHooks {
 public:
