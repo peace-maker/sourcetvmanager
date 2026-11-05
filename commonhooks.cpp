@@ -67,7 +67,7 @@ void CCommonHooks::AddSpectatorHook(CForwardManager *fwdmgr, IClient *client)
 	SH_ADD_HOOK(IClient, ExecuteStringCommand, client, SH_MEMBER(fwdmgr, &CForwardManager::OnSpectatorExecuteStringCommand_Post), true);
 
 #if NEED_EXECUTESTRINGCMD_CBASECLIENT
-	void *pGameClient = (void *)((intptr_t)client - 4);
+	void *pGameClient = (void *)((intptr_t)client - sizeof(void *));
 	if (m_bHasExecuteStringCommandOffset)
 	{
 		SH_ADD_MANUALHOOK(CBaseClient_ExecuteStringCommand, pGameClient, SH_MEMBER(fwdmgr, &CForwardManager::BaseClient_OnSpectatorExecuteStringCommand), false);
@@ -82,7 +82,7 @@ void CCommonHooks::RemoveSpectatorHook(CForwardManager *fwdmgr, IClient *client)
 	SH_REMOVE_HOOK(IClient, ExecuteStringCommand, client, SH_MEMBER(fwdmgr, &CForwardManager::OnSpectatorExecuteStringCommand_Post), true);
 
 #if NEED_EXECUTESTRINGCMD_CBASECLIENT
-	void *pGameClient = (void *)((intptr_t)client - 4);
+	void *pGameClient = (void *)((intptr_t)client - sizeof(void *));
 	if (m_bHasExecuteStringCommandOffset)
 	{
 		SH_REMOVE_MANUALHOOK(CBaseClient_ExecuteStringCommand, pGameClient, SH_MEMBER(fwdmgr, &CForwardManager::BaseClient_OnSpectatorExecuteStringCommand), false);

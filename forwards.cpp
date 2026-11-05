@@ -224,7 +224,7 @@ void CForwardManager::HookClient(IClient *client)
 	// Hook ExecuteStringCommand for chat messages
 	g_pSTVCommonHooks.AddSpectatorHook(this, client);
 
-	void *pGameClient = (void *)((intptr_t)client - 4);
+	void *pGameClient = (void *)((intptr_t)client - sizeof(void *));
 	if (m_bHasActivatePlayerOffset)
 		SH_ADD_MANUALHOOK(CBaseClient_ActivatePlayer, pGameClient, SH_MEMBER(this, &CForwardManager::OnSpectatorPutInServer), true);
 	
@@ -242,7 +242,7 @@ void CForwardManager::UnhookClient(IClient *client)
 	// Remove ExecuteStringCommand hook
 	g_pSTVCommonHooks.RemoveSpectatorHook(this, client);
 
-	void *pGameClient = (void *)((intptr_t)client - 4);
+	void *pGameClient = (void *)((intptr_t)client - sizeof(void *));
 	if (m_bHasActivatePlayerOffset)
 		SH_REMOVE_MANUALHOOK(CBaseClient_ActivatePlayer, pGameClient, SH_MEMBER(this, &CForwardManager::OnSpectatorPutInServer), true);
 	
@@ -389,7 +389,7 @@ void CForwardManager::BaseClient_OnSpectatorDisconnect(const char *reason)
 	if (!pGameClient)
 		RETURN_META(MRES_IGNORED);
 
-	IClient *client = (IClient *)((intptr_t)pGameClient + 4);
+	IClient *client = (IClient *)((intptr_t)pGameClient + sizeof(void *));
 	HandleSpectatorDisconnect(client, reason);
 
 	RETURN_META(MRES_SUPERCEDE);
@@ -437,8 +437,8 @@ void CForwardManager::OnSpectatorPutInServer()
 	if (!pGameClient)
 		RETURN_META(MRES_IGNORED);
 
-	// The IClient vtable is + 4 from the CBaseClient vtable due to multiple inheritance.
-	IClient *client = (IClient *)((intptr_t)pGameClient + 4);
+	// The IClient vtable is one pointer after the CBaseClient vtable due to multiple inheritance.
+	IClient *client = (IClient *)((intptr_t)pGameClient + sizeof(void *));
 
 	m_SpectatorPutInServerFwd->PushCell(client->GetPlayerSlot() + 1);
 	m_SpectatorPutInServerFwd->Execute();
@@ -452,7 +452,7 @@ bool CForwardManager::BaseClient_OnSpectatorExecuteStringCommand(const char *s)
 	if (!pGameClient)
 		RETURN_META_VALUE(MRES_IGNORED, true);
 
-	IClient *client = (IClient *)((intptr_t)pGameClient + 4);
+	IClient *client = (IClient *)((intptr_t)pGameClient + sizeof(void *));
 	HandleSpectatorExecuteStringCommand(client, s);
 	RETURN_META_VALUE(MRES_IGNORED, true);
 }
@@ -507,17 +507,7 @@ bool CForwardManager::OnSpectatorExecuteStringCommand_Post(const char *s)
 
 DETOUR_DECL_MEMBER2(DetourHLTVServer_BroadcastLocalChat, void, const char *, chat, const char *, chatgroup)
 {
-	static int hltvserver_inherit_offset = -1;
-	if (hltvserver_inherit_offset == -1)
-	{
-		if (!g_pGameConf->GetOffset("IServer_from_CHLTVServer", &hltvserver_inherit_offset) || hltvserver_inherit_offset == -1)
-		{
-			// IServer is +8 from CHLTVServer due to multiple inheritance - except for TF2?
-			hltvserver_inherit_offset = 8;
-		}
-	}
-
-	IServer *server = (IServer *)((intptr_t)this + hltvserver_inherit_offset);
+	IServer *server = (IServer *)((intptr_t)this + g_HLTVServers.GetIServerOffset());
 	HLTVServerWrapper *wrapper = g_HLTVServers.GetWrapper(server);
 
 	// Copy content in changeable buffer.

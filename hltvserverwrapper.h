@@ -93,6 +93,7 @@ public:
 	int GetInstanceNumber(IHLTVServer *hltvserver);
 
 	IDemoRecorder *GetDemoRecorderPtr(IHLTVServer *hltv);
+	int GetIServerOffset();
 	bool HasClientPrintfOffset();
 	bool HasShutdownOffset();
 
