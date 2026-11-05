@@ -97,12 +97,12 @@ void HLTVServerWrapper::SetLastChatClient(IClient *client)
 
 const char *HLTVServerWrapper::GetLastChatMessage()
 {
-	return m_LastChatMessage;
+	return m_LastChatMessage[0] ? m_LastChatMessage : nullptr;
 }
 
 void HLTVServerWrapper::SetLastChatMessage(const char *msg)
 {
-	m_LastChatMessage = msg;
+	ke::SafeStrcpy(m_LastChatMessage, sizeof(m_LastChatMessage), msg ? msg : "");
 }
 
 HLTVClientWrapper *HLTVServerWrapper::GetClient(int index)
