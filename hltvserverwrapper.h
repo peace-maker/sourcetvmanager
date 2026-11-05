@@ -77,7 +77,7 @@ private:
 	std::vector<std::unique_ptr<HLTVClientWrapper>> m_Clients;
 
 	IClient *m_LastChatClient = nullptr;
-	const char *m_LastChatMessage = nullptr;
+	char m_LastChatMessage[512] = {}; // Copy of the message. The source CCommand is not valid after the pre-hook returns.
 };
 
 class HLTVServerWrapperManager
