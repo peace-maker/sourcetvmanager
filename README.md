@@ -26,3 +26,4 @@ FakeClientCommand(SourceTV_GetBotIndex(), "status");
 and have the output recorded in the demo. This can help quickly identifying the players in the demo while playing it back.
 
 Note: Doesn't run on relay proxies yet.
+
